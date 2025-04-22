@@ -1,0 +1,55 @@
+{% set sizes = {'XS':'XS', 'S':'S', 'M':'M', 'L':'L', 'XL':'XL'} %}
+
+<h2>Ajouter un nouveau produit</h2>
+{{ form_start(newForm) }}
+    {{ form_widget(newForm) }}
+    <button type="submit">Ajouter</button>
+{{ form_end(newForm) }}
+
+<h2>Produits existants</h2>
+{% for product in products %}
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px;">
+        <h3>{{ product.name }}</h3>
+
+        {% if product.imageFilename %}
+            <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" alt="{{ product.name }}" width="150">
+        {% endif %}
+
+        <p>Prix : {{ product.price }} €</p>
+        <p>Mis en avant : {{ product.isFeatured ? 'Oui' : 'Non' }}</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for sizeLabel, sizeCode in sizes %}
+                        <td>
+                            {% set stock = 0 %}
+                            {% for variant in product.variants %}
+                                {% if variant.size == sizeCode %}
+                                    {% set stock = variant.stock %}
+                                {% endif %}
+                            {% endfor %}
+                            {{ stock }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+
+        {{ form_start(editForms[product.id], {'action': path('product_edit', {'id': product.id}), 'attr': {'enctype': 'multipart/form-data'}}) }}
+            {{ form_widget(editForms[product.id]) }}
+            <button type="submit">Modifier</button>
+        {{ form_end(editForms[product.id]) }}
+
+        {{ form_start(deleteForms[product.id]) }}
+            {{ form_widget(deleteForms[product.id]) }}
+            <button type="submit">Supprimer</button>
+        {{ form_end(deleteForms[product.id]) }}
+    </div>
+
+{% endfor %}
