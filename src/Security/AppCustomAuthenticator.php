@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class UserAuthenticator extends AbstractLoginFormAuthenticator
+class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
@@ -48,7 +48,14 @@ class UserAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('home'));
+        $user = $token->getUser();
+    $roles = $user->getRoles();
+
+    if (in_array('ROLE_ADMIN', $roles, true)) {
+        return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+    }
+
+    return new RedirectResponse($this->urlGenerator->generate('home'));
     }
 
     protected function getLoginUrl(Request $request): string

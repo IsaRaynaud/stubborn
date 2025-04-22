@@ -30,6 +30,9 @@ class Product
     #[ORM\OneToMany(targetEntity: ProductVariant::class, mappedBy: 'Relation')]
     private Collection $variants;
 
+    #[ORM\Column]
+    private ?bool $isFeatured = null;
+
     public function __construct()
     {
         $this->variants = new ArrayCollection();
@@ -102,6 +105,18 @@ class Product
                 $variant->setRelation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isFeatured(): ?bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(bool $isFeatured): static
+    {
+        $this->isFeatured = $isFeatured;
 
         return $this;
     }
