@@ -16,6 +16,21 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    /**
+     * Retourne la liste des produits « mis en avant ».
+     *
+     * @return Product[]
+     */
+    public function findFeatured(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.isFeatured = :featured')
+            ->setParameter('featured', true)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */

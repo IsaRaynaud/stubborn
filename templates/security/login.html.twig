@@ -3,43 +3,53 @@
 {% block title %}Se connecter{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card shadow" style="width: 35rem;">
+        <form method="post">
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            Vous êtes connecté en tant que {{ app.user.userIdentifier }}.
-        </div>
-        <div>
-             <a href="{{ path('app_logout') }}">Se déconnecter</a>
-        </div>
-    {% endif %}
+            <div class="card-header">
+                <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
+            </div>
+            {% if app.user %}
+                <div class="mb-3 text-center">
+                    Vous êtes connecté en tant que {{ app.user.userIdentifier }}.
+                </div>
+                {% endif %}
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <label for="inputEmail">E-mail : </label>
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+                    <label for="inputPassword">Mot de passe : </label>
+                    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
 
-    <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
-    <label for="inputEmail">E-mail</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Mot de passe :</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
+                    <div class="checkbox mb-3">
+                        <label>
+                            <input type="checkbox" name="_remember_me"> Se souvenir de moi
+                        </label>
+                    </div>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Se souvenir de moi
-        </label>
+                    <button class="btn btn-lg btn-primary" type="submit">
+                        Se connecter
+                    </button>
+
+                    <div>Mot de passe oublié</div>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <p>Pas encore inscrit ?</p>
+                        <a href="{{ path('app_register') }}" class="btn btn-primary">Créer un compte</a>
+                    </div>
+                </li>
+            </ul>
+        </form>
     </div>
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Se connecter
-    </button>
-
-    <div>Mot de passe oublié</div>
-    <div>Pas encore inscrit ?
-        <a href="{{ path('app_register') }}" class="btn btn-outline-primary">Créer un compte</a>
+    <div>
+        <a href="{{ path('app_logout') }}">Se déconnecter</a>
     </div>
-</form>
+</div>
 {% endblock %}

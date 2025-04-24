@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Nos produits mis en avant</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+            <div class="col">
+                <div class="card h-100">
+                    <a href="{{ path('product_detail', {id: product.id}) }}">
+                        <img
+                          src="{{ asset('uploads/products/' ~ product.image) }}"
+                          class="card-img-top"
+                          alt="{{ product.name }}"
+                        >
+                    </a>
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text fw-bold">
+                            {{ product.price|number_format(2, ',', ' ') }} €
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>Aucun produit mis en avant pour le moment.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

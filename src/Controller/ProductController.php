@@ -15,6 +15,15 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class ProductController extends AbstractController
 {
+    #[Route('/product/{id}', name: 'product_detail', requirements: ['id' => '\d+'])]
+    public function show(Product $product): Response
+    {
+        return $this->render('product/index.html.twig', [
+            'product' => $product,
+        ]);
+    }
+
+    //Gestion des produits par les administrateurs
     #[Route('/admin', name: 'admin_dashboard')]
     public function dashboard(Request $request, EntityManagerInterface $em, CsrfTokenManagerInterface $csrfTokenManager): Response
     {   
@@ -48,17 +57,6 @@ class ProductController extends AbstractController
             return $this->redirectToRoute('admin_dashboard');
         }
 
-        //Formulaire de modification d'un produit
-        $editForms = [];
-        foreach ($products as $product) {
-            $form = $this->createForm(ProductType::class, $product, [
-                'action' =>$this->generateUrl('product_edit', ['id' => $product->getId()]),
-                'csrf_token_id' => 'product',
-            ]);
-
-            $editForms[$product->getId()] = $form->createView();
-        }
-
         //Formulaire de suppression d'un produit
         $deleteForms = [];
         foreach ($products as $product) {
@@ -73,38 +71,8 @@ class ProductController extends AbstractController
             'controller_name' => 'ProductController',
             'products' => $products,
             'newForm' => $newForm->createView(),
-            'editForms' => $editForms,
             'deleteForms' => $deleteForms,
         ]);
-    }
-
-    #[Route('/admin/edit/{id}', name: 'product_edit', methods: ['POST'])]
-    public function edit(Request $request, Product $product, EntityManagerInterface $em): Response
-    {
-        $form = $this->createForm(ProductType::class, $product, [
-            'csrf_token_id' => 'product',
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFile')->getData();
-            if ($imageFile) {
-                $newFilename = uniqid().'.'.$imageFile->guessExtension();
-                $imageFile->move(
-                    $this->getParameter('images_directory'),
-                    $newFilename
-                    );    
-                $product->setImageFilename($newFilename);
-            }
-
-            $this->handleStockBySize($form, $product, $em);
-
-            $em->flush();
-
-            return $this->redirectToRoute('admin_dashboard');
-        }
-
-        return $this->redirectToRoute('admin_dashboard');
     }
 
     #[Route('/admin/delete/{id}', name: 'product_delete', methods: ['POST'])]
@@ -122,6 +90,38 @@ class ProductController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_dashboard');
+    }
+
+    #[Route('/admin/product/{id}/edit', name: 'product_edit_page', methods: ['GET', 'POST'])]
+    public function editPage(Request $request, Product $product, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(ProductType::class, $product, [
+            'csrf_token_id' => 'product',
+        ]);
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST') && $form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+                $imageFile->move(
+                    $this->getParameter('images_directory'),
+                    $newFilename
+                    );    
+                $product->setImageFilename($newFilename);
+            }
+
+            $this->handleStockBySize($form, $product, $em);
+
+            $em->flush();
+
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
+        return $this->render('product/edit.html.twig', [
+            'form' => $form->createView(),
+            'product' => $product,
+        ]);
     }
 
     //Gestion des stocks
