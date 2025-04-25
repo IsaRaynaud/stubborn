@@ -11,7 +11,7 @@
                 <div class="card h-100">
                     <a href="{{ path('product_detail', {id: product.id}) }}">
                         <img
-                          src="{{ asset('uploads/products/' ~ product.image) }}"
+                          src="{{ asset('uploads/images/' ~ product.imageFilename) }}"
                           class="card-img-top"
                           alt="{{ product.name }}"
                         >
@@ -20,7 +20,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text fw-bold">
-                            {{ product.price|number_format(2, ',', ' ') }} €
+                            {{ product.formattedPrice }}
                         </p>
                     </div>
                 </div>
