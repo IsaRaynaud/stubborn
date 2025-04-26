@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
+#[ORM\Table(name: 'orders')]
 class Order
 {
     public const STATUS_CART             = 'cart';
@@ -37,11 +38,9 @@ class Order
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeSessionId = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
-    private \DateTimeImmutable $updatedAt;
 
     public function __construct()
     {
@@ -51,28 +50,95 @@ class Order
     }
 
 
-    public function getId(): ?int { return $this->id; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
+    public function getId(): ?int
+    { 
+        return $this->id; 
+    }
 
-    /** @return Collection<int, OrderItem> */
-    public function getItems(): Collection { return $this->items; }
+    public function getUser(): ?User 
+    { 
+        return $this->user; 
+    }
+    
+    public function setUser(?User $user): self 
+    { 
+        $this->user = $user; return $this; 
+    }
+
+    /**
+     * @return Collection<int, OrderItem>
+     */
+    public function getItems(): Collection
+    {
+        return $this->items;
+    }
 
     public function addItem(OrderItem $item): self
-    {   if (!$this->items->contains($item)) { $this->items->add($item); $item->setOrder($this);} return $this; }
+    {
+        if (!$this->items->contains($item)) {
+            $item->setOrder($this);
+            $this->items->add($item);
+            $this->recalculateTotal();
+        }
+
+        return $this;
+    }
+
     public function removeItem(OrderItem $item): self
-    {   if ($this->items->removeElement($item)) { if ($item->getOrder() === $this) { $item->setOrder(null);} } return $this; }
+    {
+        if ($this->items->removeElement($item)) {
+            $item->setOrder(null);
+            $this->recalculateTotal();
+        }
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
+        return $this;
+    }
 
-    public function getTotal(): int { return $this->total; }
-    public function setTotal(int $total): self { $this->total = $total; return $this; }
+    /**
+     * Calcule le total en centimes
+     */
+    public function recalculateTotal(): self
+    {
+        $this->total = array_reduce(
+            $this->items->toArray(),
+            fn(int $carry, OrderItem $item) => $carry + $item->getSubtotal(),
+            0
+        );
 
-    public function getStripeSessionId(): ?string { return $this->stripeSessionId; }
-    public function setStripeSessionId(?string $stripeSessionId): self { $this->stripeSessionId = $stripeSessionId; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
-    public function touch(): void { $this->updatedAt = new \DateTimeImmutable(); }
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStripeSessionId(): ?string
+    {
+        return $this->stripeSessionId;
+    }
+
+    public function setStripeSessionId(string $sessionId): self
+    {
+        $this->stripeSessionId = $sessionId;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

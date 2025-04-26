@@ -18,30 +18,40 @@
                     {{ product.formattedPrice }}
                 </p>
 
-                {% set sizeOrder = ['XS','S','M','L','XL'] %}
+                <form action="{{ path('cart_add', {'id': 0}) }}" method="post" id="add-to-cart-form">
+                    <div class="mb-3">
+                        {% set sizeOrder = ['XS','S','M','L','XL'] %}
 
-                <h2 class="h5 mt-4 mb-2">Tailles disponibles</h2>
+                        <label for="variantSelect" class="form-label">Choisissez la taille :</label>
+                        <select id="variantSelect" name="variantId" class="form-select" required>
+                            <option value="" disabled selected>-- sélectionnez --</option>
 
-                <div class="d-flex flex-wrap gap-2">
-                    {% for label in sizeOrder %}
-                        <button
-                            class="btn btn-outline-secondary"
-                            type="button"
-                            style="min-width:3.2rem"
-                        >
-                            {{ label }}
-                        </button>
-                    {% endfor %}
-                </div>
-                <button id="addToCartBtn"
-        class="btn btn-primary mt-4"
-        type="button"
-        disabled>
-    Ajouter au panier
-</button>
-                            </div>
-                        </div>
+                            {% for label in sizeOrder %}
+                                {% set variant = product.variants|filter(v => v.size == label)|first %}
+                                {% if variant %}
+                                    <option value="{{ variant.id }}">{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
 
-    <a href="{{ path('app_home') }}" class="btn btn-secondary mt-4">← Retour</a>
+                    <input type="hidden" name="qty" value="1">
+
+                    <button type="submit" class="btn btn-primary" disabled id="addToCartBtn">
+                        Ajouter au panier
+                    </button>
+                </form>
+
+<script>
+    const select   = document.getElementById('variantSelect');
+    const btn      = document.getElementById('addToCartBtn');
+    const form     = document.getElementById('add-to-cart-form');
+
+    select.addEventListener('change', () => {
+        btn.disabled = false;
+        // on change dynamiquement l’action du formulaire
+        form.action = '{{ path('cart_add', {'id': '__ID__'}) }}'.replace('__ID__', select.value);
+    });
+</script>
+
 {% endblock %}

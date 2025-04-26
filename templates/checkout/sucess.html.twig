@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container py-5 text-center">
+        <h1 class="mb-4">Merci pour votre achat !</h1>
+        <p>Votre commande n° {{ order.id }} est en attente de paiement.</p>
+        <a href="{{ path('app_home') }}" class="btn btn-primary mt-3">Retour à l’accueil</a>
+    </div>
+{% endblock %}

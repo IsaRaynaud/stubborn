@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Cart;
+
 use App\Entity\ProductVariant;
 
 class CartItem
@@ -12,5 +14,15 @@ class CartItem
     public function getSubtotal(): int
     {
         return $this->variant->getRelation()->getPrice() * $this->quantity;
+    }
+
+    public function getVariant(): ProductVariant
+    {
+        return $this->variant;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
     }
 }
