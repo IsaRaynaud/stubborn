@@ -6,6 +6,7 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: 'orders')]
@@ -21,9 +22,9 @@ class Order
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private User $user;
 
     /** @var Collection<int, OrderItem> */
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'order', cascade: ['persist'], orphanRemoval: true)]
@@ -41,12 +42,14 @@ class Order
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-
-    public function __construct()
+    /**
+     * @param User $user
+     */
+    public function __construct(User $user)
     {
+        $this->user      = $user;
         $this->items     = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
 
@@ -55,7 +58,7 @@ class Order
         return $this->id; 
     }
 
-    public function getUser(): ?User 
+    public function getUser(): User 
     { 
         return $this->user; 
     }
@@ -76,8 +79,8 @@ class Order
     public function addItem(OrderItem $item): self
     {
         if (!$this->items->contains($item)) {
-            $item->setOrder($this);
             $this->items->add($item);
+            $item->setOrder($this);
             $this->recalculateTotal();
         }
 
@@ -140,5 +143,15 @@ class Order
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getMarking(): string
+    {
+        return $this->status;
+    }
+
+    public function setMarking(string $marking): void
+    {
+        $this->status = $marking;
     }
 }

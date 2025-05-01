@@ -25,25 +25,72 @@ class OrderItem
     private int $quantity = 1;
 
     #[ORM\Column(options: ['unsigned' => true])]
-    private int $unitPrice = 0; // en centimes
+    private int $unitPrice = 0;
 
     #[ORM\Column(options: ['unsigned' => true])]
-    private int $subtotal = 0; // en centimes
+    private int $subtotal = 0;
 
-    public function getId(): ?int { return $this->id; }
+    public function __construct(ProductVariant $variant, int $quantity, int $unitPrice)
+    {
+        $this->variant   = $variant;           // ← affecte la variant (remplit variant_id)
+        $this->quantity  = $quantity;
+        $this->unitPrice = $unitPrice;
+        $this->subtotal  = $quantity * $unitPrice; // ← calcule le sous-total
+    }
 
-    public function getOrder(): ?Order { return $this->order; }
-    public function setOrder(?Order $order): self { $this->order = $order; return $this; }
+    public function getId(): ?int 
+    { 
+        return $this->id; 
+    }
 
-    public function getVariant(): ?ProductVariant { return $this->variant; }
-    public function setVariant(?ProductVariant $variant): self { $this->variant = $variant; return $this; }
+    public function getOrder(): ?Order 
+    { 
+        return $this->order; 
+    }
+    
+    public function setOrder(?Order $order): self 
+    { 
+        $this->order = $order; 
+        return $this; 
+    }
 
-    public function getQuantity(): int { return $this->quantity; }
-    public function setQuantity(int $quantity): self { $this->quantity = $quantity; return $this; }
+    public function getVariant(): ?ProductVariant
+    { 
+        return $this->variant; 
+    }
 
-    public function getUnitPrice(): int { return $this->unitPrice; }
-    public function setUnitPrice(int $unitPrice): self { $this->unitPrice = $unitPrice; return $this; }
+    public function setVariant(?ProductVariant $variant): self 
+    { 
+        $this->variant = $variant; 
+        return $this; }
 
-    public function getSubtotal(): int { return $this->subtotal; }
-    public function setSubtotal(int $subtotal): self { $this->subtotal = $subtotal; return $this; }
+    public function getQuantity(): int 
+    { 
+        return $this->quantity; 
+    }
+
+    public function setQuantity(int $quantity): self 
+    { 
+        $this->quantity = $quantity; return $this; 
+    }
+
+    public function getUnitPrice(): int 
+    { 
+        return $this->unitPrice; 
+    }
+
+    public function setUnitPrice(int $unitPrice): self 
+    { 
+        $this->unitPrice = $unitPrice; return $this; 
+    }
+
+    public function getSubtotal(): int 
+    { 
+        return $this->subtotal; 
+    }
+
+    public function setSubtotal(int $subtotal): self 
+    { 
+        $this->subtotal = $subtotal; return $this; 
+    }
 }

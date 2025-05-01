@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 #[Route('/checkout', name: 'checkout_')]
+#[IsGranted('ROLE_USER')]
 class CheckoutController extends AbstractController
 {
     public function __construct(
@@ -21,10 +22,19 @@ class CheckoutController extends AbstractController
         private WorkflowInterface      $orderStateMachine,
     ) {}
 
-    #[Route('', name: 'start', methods: ['GET'])]
+    #[Route('', name: 'start', methods: ['GET', 'POST'])]
     public function start(): Response
     {
-        if (!$items = $this->cart->getItems()) {
+
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        if (null === $this->getUser()) {
+            $this->addFlash('warning', 'Vous devez vous connecter pour finaliser votre commande.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $items = $this->cart->getItems();
+        if (!$items) {
             $this->addFlash('warning', 'Votre panier est vide.');
             return $this->redirectToRoute('cart_show');
         }
@@ -44,14 +54,17 @@ class CheckoutController extends AbstractController
         $this->em->flush();          // on obtient l’ID avant de parler à Stripe
 
         //Checkout Session
+        $publicBase = 'https://stubborn.loca.lt';
+
+
         $session = $this->stripe->checkout->sessions->create([
             'mode'          => 'payment',
-            'success_url'   => $this->generateUrl('checkout_success', ['id' => $order->getId()], true),
-            'cancel_url'    => $this->generateUrl('cart_show', [], true),
+            'success_url'   => $publicBase . $this->generateUrl('checkout_success', ['id' => $order->getId()]),
+            'cancel_url'    => $publicBase . $this->generateUrl('cart_show'),
             'line_items'    => array_map(fn($ci) => [
                 'price_data' => [
                     'currency'     => 'eur',
-                    'unit_amount'  => $ci->getVariant()->getRelation()->getPrice(), // centimes
+                    'unit_amount'  => $ci->getVariant()->getRelation()->getPrice(),
                     'product_data' => [
                         'name' => $ci->getVariant()->getRelation()->getName().' - '.$ci->getVariant()->getSize(),
                     ],
@@ -66,7 +79,16 @@ class CheckoutController extends AbstractController
 
         //Vider panier
         $this->cart->clear();
-        return $this->redirect($session->url, Response::HTTP_SEE_OTHER);
+
+        $data = $session->toArray();
+        $url  = $data['url'] ?? null;
+
+        if (!is_string($url)) {
+            dd('URL Stripe introuvable dans la session', array_keys($data));
+        }
+
+        return $this->redirect($url, Response::HTTP_SEE_OTHER);
+        
     }
 
     #[Route('/success/{id}', name: 'success', requirements: ['id' => '\d+'])]

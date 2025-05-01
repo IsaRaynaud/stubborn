@@ -28,7 +28,8 @@ class StripeWebhookController extends AbstractController
             $event = \Stripe\Webhook::constructEvent(
                 $payload,
                 $sigHeader,
-                $endpointSecret
+                $this->webhookSecret
+                //$endpointSecret
             );
         } catch (\UnexpectedValueException $e) {
             return new Response('Invalid payload', 400);

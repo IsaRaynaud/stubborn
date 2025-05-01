@@ -1,9 +1,11 @@
 framework:
   workflows:
     order:
-      type: "state_machine"
+      type: state_machine
       supports:
         - App\Entity\Order
+      marking_store:
+        type: method
       initial_marking: cart
       places: [cart, awaiting_payment, paid, shipped]
       transitions:

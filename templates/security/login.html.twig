@@ -5,13 +5,14 @@
 {% block body %}
 <div class="d-flex justify-content-center align-items-center">
     <div class="card shadow" style="width: 35rem;">
-        <form method="post">
+        <form method="post" action="{{ path('app_login') }}" data-turbo="false">
             {% if error %}
                 <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
             {% endif %}
 
             <div class="card-header">
                 <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
+                <p>{{ csrf_token('authenticate') }}</p>
             </div>
             {% if app.user %}
                 <div class="mb-3 text-center">
