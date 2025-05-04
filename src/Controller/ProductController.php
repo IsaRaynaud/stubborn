@@ -15,6 +15,16 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class ProductController extends AbstractController
 {
+    #[Route('/products', name:'product_index')]
+    public function allProducts(EntityManagerInterface $em): Response
+    {
+        $products = $em->getRepository(Product::class)->findAll();
+        
+        return $this->render('product/index.html.twig', [
+            'products' => $products,
+        ]);
+    }
+
     #[Route('/product/{id}', name: 'product_detail', requirements: ['id' => '\d+'])]
     public function show(Product $product): Response
     {

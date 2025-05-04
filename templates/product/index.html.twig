@@ -3,5 +3,24 @@
 {% block title %}Tous les produits{% endblock %}
 
 {% block body %}
-
+ <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+            <div class="card h-100">
+                <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text fw-bold">
+                                {{ product.formattedPrice }}
+                            </p>
+                        </div>
+                        <div class="col">
+                            <a href="{{ path('product_detail', {id: product.id}) }}" class="btn btn-outline-primary">VOIR</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endfor %}
+</div>
 {% endblock %}
