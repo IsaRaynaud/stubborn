@@ -13,7 +13,7 @@
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex flex-column align-items-center" href="{{ path('app_home') }}">
-                    <img src="{{ asset('Logo.png') }}" class="mb-1" alt="Logo Stubborn" width="150" height="120" class="me-2">
+                    <img src="{{ asset('Logo.png') }}" class="me-2 mb-1" alt="Logo Stubborn" width="150" height="120">
                     Don't compromise on your look
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,8 +24,23 @@
                 {% set current = app.request.attributes.get('_route') %}
                     <ul class="navbar-nav ms-auto align-items-center mb-2 mb-lg-0">
                     
+                    {# ROLE_ADMIN #}
+                    {% if is_granted('ROLE_ADMIN') %}
+                       <li class="nav-item">
+                            <a class="nav-link {{ current == 'admin_dashboard' ? 'active' }}" href="{{ path('admin_dashboard')}}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ current == 'app_home' ? 'active' }}" href="{{ path('product_index')}}">Boutique</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ current starts with 'admin_users' ? 'active' }}" href="{{ path('admin_users') }}">Gérer les administrateurs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ current == 'app_logout' ? 'active' }}" href="{{ path('app_logout') }}">Se déconnecter</a>
+                        </li>
+                    
                     {# ROLE_USER #}
-                    {% if is_granted('ROLE_USER') %}
+                    {% elseif is_granted('ROLE_USER') %}
                         <li class="nav-item">
                             <a class="nav-link {{ current == 'app_home' ? 'active' }}" href="{{ path('app_home') }}">Accueil</a>
                         </li>
@@ -34,18 +49,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ current starts with 'cart_' ? 'active' }}" href="{{ path('cart_show') }}">Panier</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ current == 'app_logout' ? 'active' }}" href="{{ path('app_logout') }}">Se déconnecter</a>
-                        </li>
-                    
-                    {# ROLE_ADMIN #}
-                    {% elseif is_granted('ROLE_ADMIN') %}
-                        <li class="nav-item">
-                            <a class="nav-link {{ current == 'app_home' ? 'active' }}" href="{{ path('product_index')}}">Boutique</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ current starts with 'admin_users' ? 'active' }}" href="#">Gérer les utilisateurs A modifier</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ current == 'app_logout' ? 'active' }}" href="{{ path('app_logout') }}">Se déconnecter</a>

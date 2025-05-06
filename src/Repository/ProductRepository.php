@@ -31,6 +31,18 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    //Trie les produits par prix
+    public function findByPriceRange(int $min, int $max): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andwhere('p.price BETWEEN :min AND :max')
+            ->setParameter('min', $min * 100)
+            ->setParameter('max', $max * 100)
+            ->orderBy('p.price', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */

@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}E-mail envoyé !{% endblock %}
+
+{% block body %}
+    <p>Si un compte existe pour cette adresse e-mail, un lien vient de vous être envoyé pour réinitialiser votre mot de passe.</p>
+    <p>Attention ! Ce lien n'est actif que pendant {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+    <p>Pensez à vérifier votre dossier spam et si vous n'avez vraiment rien reçu, <a href="{{ path('app_login') }}">créer un compte</a> avec cet e-mail.</p>
+{% endblock %}

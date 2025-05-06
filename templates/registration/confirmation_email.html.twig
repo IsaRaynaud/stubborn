@@ -1,11 +1,11 @@
-<h1>Hi! Please confirm your email!</h1>
-
+<h1>Binvenue chez Stubborn !</h1>
+<img src="{{ asset('Logo.png') }}" alt="Logo Stubborn" width="150" height="120">
 <p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+    Pour confirmer voter inscription, cliquez sur le lien ci-dessous : <br><br>
+    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.<br>
+    <i>Attention, ce lien n'est valable que {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.</i>
 </p>
 
 <p>
-    Cheers!
+    Bonne journée !
 </p>

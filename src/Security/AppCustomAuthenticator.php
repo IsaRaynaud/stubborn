@@ -26,20 +26,6 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
     {
     }
 
-//     public function supports(Request $request): bool
-// {
-//     // DEBUG : dump à chaque appel de supports()
-//     dump([
-//         'route'  => $request->attributes->get('_route'),
-//         'method' => $request->getMethod(),
-//         'post'   => $request->request->all(),
-//     ]);
-
-//     // on ne supporte que le POST sur la route de login
-//     return $request->attributes->get('_route') === self::LOGIN_ROUTE
-//         && $request->isMethod('POST');
-// }
-
     public function authenticate(Request $request): Passport
     {
         $email     = $request->request->get('email', '');
@@ -70,7 +56,7 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
     }
 
-    return new RedirectResponse($this->urlGenerator->generate('home'));
+    return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 
     protected function getLoginUrl(Request $request): string

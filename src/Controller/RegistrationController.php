@@ -54,16 +54,22 @@ class RegistrationController extends AbstractController
                     (new TemplatedEmail())
                         ->from(new Address('contact@lewebpluschouette.fr', 'Contact'))
                         ->to((string) $user->getEmail())
-                        ->subject('Confirmez votre e-mail')
+                        ->subject('STUBBORN/Confirmez votre e-mail')
                         ->htmlTemplate('registration/confirmation_email.html.twig')
                 );
 
-                return $security->login($user, 'form_login', 'main');
+                return $this->redirectToRoute('app_waiting_confirmation');
             }
         }
             return $this->render('registration/register.html.twig', [
                 'registrationForm' => $form,
             ]);
+    }
+
+    #[Route('/waiting_confirmation', name: 'app_waiting_confirmation')]
+    public function waitingConfirmation(): Response
+    {
+        return $this->render('registration/confirmation_page.html.twig');
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
@@ -92,6 +98,10 @@ class RegistrationController extends AbstractController
         }
 
         $this->addFlash('success', 'Votre e-mail a été vérifié.');
+
+        $security->login($user, 'main');
+
+        return $this->redirectToRoute('app_home');
 
     }
 }

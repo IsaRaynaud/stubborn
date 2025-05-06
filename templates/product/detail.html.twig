@@ -43,15 +43,25 @@
                 </form>
 
 <script>
-    const select   = document.getElementById('variantSelect');
-    const btn      = document.getElementById('addToCartBtn');
-    const form     = document.getElementById('add-to-cart-form');
+    function initAddToCart() {
+        const select   = document.getElementById('variantSelect');
+        const btn      = document.getElementById('addToCartBtn');
+        const form     = document.getElementById('add-to-cart-form');
 
-    select.addEventListener('change', () => {
-        btn.disabled = false;
-        // on change dynamiquement l’action du formulaire
-        form.action = '{{ path('cart_add', {'id': '__ID__'}) }}'.replace('__ID__', select.value);
-    });
+        if (!select || !btn || !form) return; 
+        btn.disabled = true;
+
+        const clone = select.cloneNode(true);
+        select.parentNode.replaceChild(clone, select);
+
+            clone.addEventListener('change', () => {
+            btn.disabled = false;
+            form.action = '{{ path('cart_add', {'id': '__ID__'}) }}'.replace('__ID__', clone.value);
+        });
+    } 
+
+    document.addEventListener('DOMContentLoaded', initAddToCart);
+    document.addEventListener('turbo:load',     initAddToCart);
 </script>
 
 {% endblock %}
