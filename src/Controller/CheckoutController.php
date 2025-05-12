@@ -10,7 +10,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Workflow\WorkflowInterface;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(
+    name: 'Paiement',
+    description: 'Processus de checkout Stripe'
+)]
 #[Route('/checkout', name: 'checkout_')]
 #[IsGranted('ROLE_USER')]
 class CheckoutController extends AbstractController
@@ -23,6 +28,18 @@ class CheckoutController extends AbstractController
     ) {}
 
     #[Route('', name: 'start', methods: ['GET', 'POST'])]
+    #[OA\Post(  // POST qui déclenche réellement la session Stripe
+        path: '/checkout',
+        operationId: 'checkoutStartPost',
+        summary: 'Créer la session Stripe et rediriger',
+        tags: ['Paiement'],
+        security: [ ['cookieAuth' => []] ],
+        responses: [
+            new OA\Response(response: 303, description: 'See Other → URL Stripe'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 400, description: 'Panier vide')
+        ]
+    )]
     public function start(): Response
     {
 
@@ -92,6 +109,25 @@ class CheckoutController extends AbstractController
     }
 
     #[Route('/success/{id}', name: 'success', requirements: ['id' => '\d+'])]
+    #[OA\Get(
+        path: '/checkout/success/{id}',
+        operationId: 'checkoutSuccess',
+        summary: 'Afficher la page de confirmation de commande',
+        tags: ['Paiement'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Identifiant de la commande',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Page succès avec détails commande'),
+            new OA\Response(response: 404, description: 'Commande introuvable')
+        ]
+    )]
     public function success(Order $order): Response
     {
         return $this->render('checkout/success.html.twig', ['order' => $order]);

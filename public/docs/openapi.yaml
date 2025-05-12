@@ -1,0 +1,463 @@
+openapi: 3.1.0
+info:
+  title: Stubborn
+  description: "Documentation générée automatiquement pour l'application Stubborn."
+  contact:
+    name: 'Support Stubborn'
+    email: contact@lewebpluschouette.fr
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  version: 1.0.0
+paths:
+  /admin/users:
+    get:
+      tags:
+        - 'Utilisateurs (admin)'
+      summary: 'Lister tous les utilisateurs'
+      operationId: adminListUsers
+      responses:
+        '200':
+          description: 'Page HTML ou JSON contenant la liste des utilisateurs'
+  '/admin/user/{id}/edit':
+    get:
+      tags:
+        - 'Utilisateurs (admin)'
+      summary: 'Afficher le formulaire d’édition'
+      operationId: adminEditUserForm
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID de l’utilisateur'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Formulaire HTML'
+        '404':
+          description: 'Utilisateur introuvable'
+    post:
+      tags:
+        - 'Utilisateurs (admin)'
+      summary: 'Mettre à jour les rôles d’un utilisateur'
+      operationId: adminUpdateUser
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID de l’utilisateur'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirection après mise à jour'
+        '400':
+          description: 'Données invalides'
+        '404':
+          description: 'Utilisateur introuvable'
+  /cart:
+    get:
+      tags:
+        - Panier
+      summary: 'Afficher le contenu du panier'
+      operationId: cartShow
+      responses:
+        '200':
+          description: 'Page HTML ou JSON listant les articles du panier'
+  '/cart/add/{id}':
+    post:
+      tags:
+        - Panier
+      summary: 'Ajouter un article au panier'
+      operationId: cartAdd
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID de la variante de produit'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: 'Quantité (form-data ou JSON). Défaut : 1'
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                qty:
+                  type: integer
+                  default: 1
+                  minimum: 1
+              type: object
+      responses:
+        '302':
+          description: 'Redirection vers le panier'
+        '404':
+          description: 'Produit introuvable'
+  '/cart/remove/{id}':
+    post:
+      tags:
+        - Panier
+      summary: 'Retirer un article du panier'
+      operationId: cartRemove
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID de la variante à retirer'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirection après suppression'
+        '404':
+          description: 'Article introuvable'
+  /cart/clear:
+    post:
+      tags:
+        - Panier
+      summary: 'Vider complètement le panier'
+      operationId: cartClear
+      responses:
+        '302':
+          description: 'Redirection vers le panier (vide)'
+  /checkout:
+    post:
+      tags:
+        - Paiement
+      summary: 'Créer la session Stripe et rediriger'
+      operationId: checkoutStartPost
+      responses:
+        '303':
+          description: 'See Other → URL Stripe'
+        '401':
+          description: 'Non authentifié'
+        '400':
+          description: 'Panier vide'
+      security:
+        -
+          cookieAuth: []
+  '/checkout/success/{id}':
+    get:
+      tags:
+        - Paiement
+      summary: 'Afficher la page de confirmation de commande'
+      operationId: checkoutSuccess
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Identifiant de la commande'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Page succès avec détails commande'
+        '404':
+          description: 'Commande introuvable'
+  /:
+    get:
+      tags:
+        - Accueil
+      summary: "Afficher la page d'accueil"
+      operationId: home
+      responses:
+        '200':
+          description: 'Page HTML contenant les produits en vedette'
+  /products:
+    get:
+      tags:
+        - Produits
+      summary: 'Lister les produits'
+      operationId: listProducts
+      parameters:
+        -
+          name: range
+          in: query
+          description: 'Filtrer par fourchette de prix (optionnel)'
+          required: false
+          schema:
+            type: string
+            enum:
+              - 10-29
+              - 30-35
+              - 36-50
+      responses:
+        '200':
+          description: 'Page HTML ou JSON de produits'
+  '/product/{id}':
+    get:
+      tags:
+        - Produits
+      summary: 'Afficher un produit'
+      operationId: getProduct
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Identifiant du produit'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Page détail produit'
+        '404':
+          description: 'Produit non trouvé'
+  /admin:
+    get:
+      tags:
+        - Produits
+      summary: 'Tableau de bord admin des produits'
+      operationId: adminDashboard
+      responses:
+        '200':
+          description: 'Vue HTML du dashboard'
+    post:
+      tags:
+        - Produits
+      summary: 'Créer un produit (admin)'
+      operationId: createProduct
+      responses:
+        '302':
+          description: 'Redirection après création'
+        '400':
+          description: 'Données invalides'
+  '/admin/delete/{id}':
+    post:
+      tags:
+        - Produits
+      summary: 'Supprimer un produit'
+      operationId: deleteProduct
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID du produit à supprimer'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirection après suppression'
+        '404':
+          description: 'Produit introuvable'
+  '/admin/product/{id}/edit':
+    get:
+      tags:
+        - Produits
+      summary: "Afficher le formulaire d'édition (admin)"
+      operationId: editProductForm
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Formulaire HTML'
+    post:
+      tags:
+        - Produits
+      summary: 'Mettre à jour un produit'
+      operationId: updateProduct
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirection après mise à jour'
+        '400':
+          description: 'Données invalides'
+  /register:
+    post:
+      tags:
+        - Inscription
+      summary: 'Inscrire un nouvel utilisateur'
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                plainPassword:
+                  type: string
+                  format: password
+                confirmPassword:
+                  type: string
+                  format: password
+              type: object
+      responses:
+        '201':
+          description: 'Compte créé, e-mail de vérification envoyé'
+        '400':
+          description: 'Données invalides ou mots de passe non concordants'
+  /waiting_confirmation:
+    get:
+      tags:
+        - Inscription
+      summary: "Confirme que l'e-mail de vérification a été envoyé"
+      operationId: waitingConfirmation
+      responses:
+        '200':
+          description: 'Vue ou JSON de confirmation'
+  /verify/email:
+    get:
+      tags:
+        - Inscription
+      summary: "Valider le lien de vérification d'e-mail"
+      operationId: verifyEmail
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'Identifiant du nouvel utilisateur'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '302':
+          description: 'Redirection vers la page d’accueil après succès'
+        '400':
+          description: 'Lien invalide ou expiré'
+  /reset-password:
+    post:
+      tags:
+        - 'Mot de passe'
+      summary: 'Demander un lien de réinitialisation'
+      description: 'Display & process form to request a password reset.'
+      operationId: requestPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+              type: object
+      responses:
+        '202':
+          description: 'E‑mail envoyé (ou réponse générique)'
+        '400':
+          description: 'Données invalides'
+  /reset-password/check-email:
+    get:
+      tags:
+        - 'Mot de passe'
+      summary: 'Confirme que le mail a été envoyé'
+      operationId: resetPasswordCheckEmail
+      responses:
+        '200':
+          description: 'Page HTML ou JSON de confirmation'
+  '/reset-password/reset/{token}':
+    post:
+      tags:
+        - 'Mot de passe'
+      summary: 'Enregistrer le nouveau mot de passe'
+      operationId: resetPassword
+      parameters:
+        -
+          name: token
+          in: path
+          description: 'Jeton unique reçu par e‑mail'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  type: string
+                  format: password
+              type: object
+      responses:
+        '204':
+          description: 'Mot de passe réinitialisé'
+        '400':
+          description: 'Jeton invalide ou expiré'
+  /login:
+    get:
+      tags:
+        - Authentification
+      summary: 'Afficher le formulaire de connexion'
+      operationId: loginForm
+      responses:
+        '200':
+          description: 'Page HTML contenant le formulaire de connexion'
+  /logout:
+    get:
+      tags:
+        - Authentification
+      summary: 'Déconnexion utilisateur'
+      operationId: logout
+      responses:
+        '204':
+          description: 'Déconnexion réussie – aucune donnée renvoyée'
+  /stripe/webhook:
+    post:
+      tags:
+        - 'Stripe Webhook'
+      summary: 'Recevoir un webhook Stripe'
+      operationId: stripeWebhook
+      parameters:
+        -
+          name: Stripe-Signature
+          in: header
+          description: 'Signature du webhook fournie par Stripe'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Webhook traité'
+        '400':
+          description: 'Signature ou payload invalide'
+tags:
+  -
+    name: 'Utilisateurs (admin)'
+    description: 'Liste et modification des comptes User par un administrateur'
+  -
+    name: Panier
+    description: 'Gestion du panier de l’utilisateur'
+  -
+    name: Paiement
+    description: 'Processus de checkout Stripe'
+  -
+    name: Accueil
+    description: "Page d'accueil"
+  -
+    name: Produits
+    description: 'Consultation du catalogue et gestion côté admin'
+  -
+    name: Inscription
+    description: "Création de compte et vérification d'e-mail"
+  -
+    name: 'Mot de passe'
+    description: 'Workflow de réinitialisation du mot de passe'
+  -
+    name: Authentification
+    description: 'Connexion et déconnexion des utilisateurs'
+  -
+    name: 'Stripe Webhook'
+    description: 'Réception et traitement des événements Stripe'

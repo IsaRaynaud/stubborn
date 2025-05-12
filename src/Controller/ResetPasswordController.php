@@ -19,8 +19,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use OpenApi\Attributes as OA;
 
 #[Route('/reset-password')]
+#[OA\Tag(
+    name: 'Mot de passe',
+    description: 'Workflow de réinitialisation du mot de passe'
+)]
 class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
@@ -35,6 +40,24 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      */
     #[Route('', name: 'app_forgot_password_request')]
+    #[OA\Post(
+        path: '/reset-password',
+        operationId: 'requestPasswordReset',
+        summary: 'Demander un lien de réinitialisation',
+        tags: ['Mot de passe'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 202, description: "E‑mail envoyé (ou réponse générique)"),
+            new OA\Response(response: 400, description: 'Données invalides')
+        ]
+    )]
     public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
     {
         $form = $this->createForm(ResetPasswordRequestForm::class);
@@ -53,14 +76,19 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    /**
-     * Confirmation page after a user has requested a password reset.
-     */
+    //Page de confirmation page après l'envoi du mail.
     #[Route('/check-email', name: 'app_check_email')]
+    #[OA\Get(
+        path: '/reset-password/check-email',
+        operationId: 'resetPasswordCheckEmail',
+        summary: 'Confirme que le mail a été envoyé',
+        tags: ['Mot de passe'],
+        responses: [
+            new OA\Response(response: 200, description: 'Page HTML ou JSON de confirmation')
+        ]
+    )]
     public function checkEmail(): Response
     {
-        // Generate a fake token if the user does not exist or someone hit this page directly.
-        // This prevents exposing whether or not a user was found with the given email address or not
         if (null === ($resetToken = $this->getTokenObjectFromSession())) {
             $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
         }
@@ -70,10 +98,35 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
-    /**
-     * Validates and process the reset URL that the user clicked in their email.
-     */
+    //
     #[Route('/reset/{token}', name: 'app_reset_password')]
+    #[OA\Post(
+        path: '/reset-password/reset/{token}',
+        operationId: 'resetPassword',
+        summary: 'Enregistrer le nouveau mot de passe',
+        tags: ['Mot de passe'],
+        parameters: [
+            new OA\Parameter(
+                name: 'token',
+                in: 'path',
+                required: true,
+                description: 'Jeton unique reçu par e‑mail',
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'password', type: 'string', format: 'password')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 204, description: 'Mot de passe réinitialisé'),
+            new OA\Response(response: 400, description: 'Jeton invalide ou expiré')
+        ]
+    )]
     public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, ?string $token = null): Response
     {
         if ($token) {

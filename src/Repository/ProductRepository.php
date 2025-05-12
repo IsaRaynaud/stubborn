@@ -32,12 +32,15 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     //Trie les produits par prix
-    public function findByPriceRange(int $min, int $max): array
+    public function findByPriceRange(int $minEuro, int $maxEuro): array
     {
+        $minCents = $minEuro * 100;
+        $maxCents = ($maxEuro + 1) * 100 - 1;
+
         return $this->createQueryBuilder('p')
             ->andwhere('p.price BETWEEN :min AND :max')
-            ->setParameter('min', $min * 100)
-            ->setParameter('max', $max * 100)
+            ->setParameter('min', $minCents)
+            ->setParameter('max', $maxCents)
             ->orderBy('p.price', 'ASC')
             ->getQuery()
             ->getResult();

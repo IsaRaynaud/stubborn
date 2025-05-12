@@ -17,7 +17,12 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(
+    name: 'Inscription',
+    description: "Création de compte et vérification d'e-mail"
+)]
 class RegistrationController extends AbstractController
 {
     public function __construct(private EmailVerifier $emailVerifier)
@@ -25,6 +30,26 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
+    #[OA\Post(
+        path: '/register',
+        operationId: 'register',
+        summary: 'Inscrire un nouvel utilisateur',
+        tags: ['Inscription'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email'),
+                    new OA\Property(property: 'plainPassword', type: 'string', format: 'password'),
+                    new OA\Property(property: 'confirmPassword', type: 'string', format: 'password')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: "Compte créé, e-mail de vérification envoyé"),
+            new OA\Response(response: 400, description: 'Données invalides ou mots de passe non concordants')
+        ]
+    )]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
     {
         $user = new User();
@@ -67,12 +92,40 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/waiting_confirmation', name: 'app_waiting_confirmation')]
+    #[OA\Get(
+        path: '/waiting_confirmation',
+        operationId: 'waitingConfirmation',
+        summary: "Confirme que l'e-mail de vérification a été envoyé",
+        tags: ['Inscription'],
+        responses: [
+            new OA\Response(response: 200, description: 'Vue ou JSON de confirmation')
+        ]
+    )]
     public function waitingConfirmation(): Response
     {
         return $this->render('registration/confirmation_page.html.twig');
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
+    #[OA\Get(
+        path: '/verify/email',
+        operationId: 'verifyEmail',
+        summary: "Valider le lien de vérification d'e-mail",
+        tags: ['Inscription'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'query',
+                required: true,
+                description: 'Identifiant du nouvel utilisateur',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirection vers la page d’accueil après succès'),
+            new OA\Response(response: 400, description: 'Lien invalide ou expiré')
+        ]
+    )]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
         $id = $request->query->get('id');

@@ -1,9 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tous les produits{% endblock %}
+{% block title %}Tous nos produits{% endblock %}
 
 {% block body %}
- <div class="row row-cols-1 row-cols-md-3 g-4">
+<h1>Tous les produits</h1>
+   {# — Groupe de boutons de filtre — #}
+    <div class="btn-group mb-4" role="group">
+        {% set ranges = {
+            '10-29': '10 € – 29 €',
+            '30-35': '30 € – 35 €',
+            '36-50': '36 € – 50 €'
+        } %}
+
+        {% for key, label in ranges %}
+            <a href="{{ path('product_index', {range: key}) }}"
+               class="btn btn-outline-primary {% if activeRange == key %}active{% endif %}">
+                {{ label }}
+            </a>
+        {% endfor %}
+
+        <a href="{{ path('product_index') }}"
+           class="btn btn-outline-secondary {% if not activeRange %}active{% endif %}">
+            Tous les produits
+        </a>
+    </div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
     {% for product in products %}
             <div class="card h-100">
                 <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" class="card-img-top" alt="{{ product.name }}">

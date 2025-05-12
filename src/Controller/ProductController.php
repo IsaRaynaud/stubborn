@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Entity\ProductVariant;
 use App\Form\ProductType;
+use App\Repository\ProductRepository;   
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,20 +13,81 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(
+    name: 'Produits',
+    description: 'Consultation du catalogue et gestion côté admin'
+)]
 class ProductController extends AbstractController
 {
     #[Route('/products', name:'product_index')]
-    public function allProducts(EntityManagerInterface $em): Response
+    #[OA\Get(
+        path: '/products',
+        operationId: 'listProducts',
+        summary: 'Lister les produits',
+        tags: ['Produits'],
+        parameters: [
+            new OA\Parameter(
+                name: 'range',
+                description: 'Filtrer par fourchette de prix (optionnel)',
+                in: 'query',
+                required: false,
+                schema: new OA\Schema(
+                    type: 'string',
+                    enum: ['10-29', '30-35', '36-50']
+                )
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Page HTML ou JSON de produits')
+        ]
+    )]
+    public function allProducts(Request $request, ProductRepository $repo): Response
     {
-        $products = $em->getRepository(Product::class)->findAll();
-        
+        $ranges = [
+            '10-29' => [10, 29],
+            '30-35' => [30, 35],
+            '36-50' => [36, 50],
+        ];
+
+        $rangeKey = $request->query->get('range');
+
+        if ($rangeKey && isset($ranges[$rangeKey])) {
+            [$min, $max] = $ranges[$rangeKey];
+
+            $products    = $repo->findByPriceRange($min, $max);
+        } else {
+            $products    = $repo->findAll();
+            $rangeKey    = null;
+        }
+    
         return $this->render('product/index.html.twig', [
-            'products' => $products,
+            'products'    => $products,
+            'activeRange' => $rangeKey,
         ]);
     }
 
     #[Route('/product/{id}', name: 'product_detail', requirements: ['id' => '\d+'])]
+    #[OA\Get(
+        path: '/product/{id}',
+        operationId: 'getProduct',
+        summary: 'Afficher un produit',
+        tags: ['Produits'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Identifiant du produit',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Page détail produit'),
+            new OA\Response(response: 404, description: 'Produit non trouvé')
+        ]
+    )]
     public function show(Product $product): Response
     {
         return $this->render('product/detail.html.twig', [
@@ -35,6 +97,25 @@ class ProductController extends AbstractController
 
     //Gestion des produits par les administrateurs
     #[Route('/admin', name: 'admin_dashboard')]
+    #[OA\Get(
+        path: '/admin',
+        operationId: 'adminDashboard',
+        summary: 'Tableau de bord admin des produits',
+        tags: ['Produits'],
+        responses: [
+            new OA\Response(response: 200, description: 'Vue HTML du dashboard')
+        ]
+    )]
+    #[OA\Post(
+        path: '/admin',
+        operationId: 'createProduct',
+        summary: 'Créer un produit (admin)',
+        tags: ['Produits'],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirection après création'),
+            new OA\Response(response: 400, description: 'Données invalides')
+        ]
+    )]
     public function dashboard(Request $request, EntityManagerInterface $em, CsrfTokenManagerInterface $csrfTokenManager): Response
     {   
         //Afficher tous les produits
@@ -86,6 +167,25 @@ class ProductController extends AbstractController
     }
 
     #[Route('/admin/delete/{id}', name: 'product_delete', methods: ['POST'])]
+    #[OA\Post(
+        path: '/admin/delete/{id}',
+        operationId: 'deleteProduct',
+        summary: 'Supprimer un produit',
+        tags: ['Produits'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'ID du produit à supprimer',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirection après suppression'),
+            new OA\Response(response: 404, description: 'Produit introuvable')
+        ]
+    )]
     public function delete(Request $request, Product $product, EntityManagerInterface $em): Response
     {
         $form = $this->createFormBuilder()
@@ -103,6 +203,33 @@ class ProductController extends AbstractController
     }
 
     #[Route('/admin/product/{id}/edit', name: 'product_edit_page', methods: ['GET', 'POST'])]
+    #[OA\Get(
+        path: '/admin/product/{id}/edit',
+        operationId: 'editProductForm',
+        summary: "Afficher le formulaire d'édition (admin)",
+        tags: ['Produits'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true,
+                schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Formulaire HTML')
+        ]
+    )]
+    #[OA\Post(
+        path: '/admin/product/{id}/edit',
+        operationId: 'updateProduct',
+        summary: 'Mettre à jour un produit',
+        tags: ['Produits'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true,
+                schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirection après mise à jour'),
+            new OA\Response(response: 400, description: 'Données invalides')
+        ]
+    )]
     public function editPage(Request $request, Product $product, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(ProductType::class, $product, [

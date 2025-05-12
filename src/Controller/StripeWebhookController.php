@@ -8,6 +8,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Workflow\WorkflowInterface;
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(
+    name: 'Stripe Webhook',
+    description: 'Réception et traitement des événements Stripe'
+)]
 
 class StripeWebhookController extends AbstractController
 {
@@ -18,6 +24,25 @@ class StripeWebhookController extends AbstractController
     ) {}
 
     #[Route('/stripe/webhook', name: 'stripe_webhook', methods: ['POST'])]
+    #[OA\Post(
+        path: '/stripe/webhook',
+        operationId: 'stripeWebhook',
+        summary: 'Recevoir un webhook Stripe',
+        tags: ['Stripe Webhook'],
+        parameters: [
+            new OA\Parameter(
+                name: 'Stripe-Signature',
+                description: 'Signature du webhook fournie par Stripe',
+                in: 'header',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Webhook traité'),
+            new OA\Response(response: 400, description: 'Signature ou payload invalide')
+        ]
+    )]
     public function __invoke(Request $request): Response
     {
         $payload    = $request->getContent();
