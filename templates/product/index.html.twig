@@ -1,20 +1,47 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProductController!{% endblock %}
+{% block title %}Tous nos produits{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<h1>Tous les produits</h1>
+   {# — Groupe de boutons de filtre — #}
+    <div class="btn-group mb-4" role="group">
+        {% set ranges = {
+            '10-29': '10 € – 29 €',
+            '30-35': '30 € – 35 €',
+            '36-50': '36 € – 50 €'
+        } %}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        {% for key, label in ranges %}
+            <a href="{{ path('product_index', {range: key}) }}"
+               class="btn btn-outline-primary {% if activeRange == key %}active{% endif %}">
+                {{ label }}
+            </a>
+        {% endfor %}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/rayna/Documents/Formations/Developpeur_Web/03-Wizard/stubborn/stubborn/src/Controller/ProductController.php</code></li>
-        <li>Your template at <code>C:/Users/rayna/Documents/Formations/Developpeur_Web/03-Wizard/stubborn/stubborn/templates/product/index.html.twig</code></li>
-    </ul>
+        <a href="{{ path('product_index') }}"
+           class="btn btn-outline-secondary {% if not activeRange %}active{% endif %}">
+            Tous les produits
+        </a>
+    </div>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+            <div class="card h-100">
+                <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text fw-bold">
+                                {{ product.formattedPrice }}
+                            </p>
+                        </div>
+                        <div class="col">
+                            <a href="{{ path('product_detail', {id: product.id}) }}" class="btn btn-outline-primary">VOIR</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endfor %}
 </div>
 {% endblock %}

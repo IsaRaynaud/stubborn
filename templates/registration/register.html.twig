@@ -1,24 +1,58 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connexion{% endblock %}
+{% block title %}Inscription{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+<div class="d-flex justify-content-center align-items-center text-center">
+    <div class="card shadow" style="width: 35rem;">
+        <div class="card-header">
+            <h1 class="h3 mb-3 font-weight-normal">S'inscrire</h1>
+        </div>
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+            {% endfor %}
+        {{ form_errors(registrationForm) }}
 
-    <h1>S'inscrire</h1>
-
-    {{ form_errors(registrationForm) }}
-
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.name) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.roles) }}
-        {{ form_row(registrationForm.plainPassword) }}
-        {{ form_row(registrationForm.delivery_address) }}
-        {{ form_row(registrationForm.agreeTerms) }}
-
-        <button type="submit" class="btn">Créer un compte</button>
-    {{ form_end(registrationForm) }}
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                    {{ form_start(registrationForm) }}
+                        <div class="mb-1">
+                            {{ form_label(registrationForm.name) }}<br/>
+                            {{ form_widget(registrationForm.name) }}
+                            {{ form_errors(registrationForm.name) }}
+                        </div>
+                        <div class="mb-1">
+                            {{ form_label(registrationForm.email) }}<br/>
+                            {{ form_widget(registrationForm.email) }}
+                            {{ form_errors(registrationForm.email) }}
+                        </div>
+                        <div class="mb-1">
+                            {{ form_label(registrationForm.delivery_address) }}<br/>
+                            {{ form_widget(registrationForm.delivery_address) }}
+                            {{ form_errors(registrationForm.delivery_address) }}
+                        </div>
+                        <div class="mb-1">
+                            {{ form_label(registrationForm.plainPassword) }}<br/>
+                            {{ form_widget(registrationForm.plainPassword) }}
+                            {{ form_errors(registrationForm.plainPassword) }}                        
+                        </div>
+                        <div class="mb-1">
+                            {{ form_label(registrationForm.confirmPassword) }}<br/>
+                            {{ form_widget(registrationForm.confirmPassword) }}
+                            {{ form_errors(registrationForm.confirmPassword) }}
+                        </div>
+                        <div class="mb-1">                        
+                            {{ form_row(registrationForm.agreeTerms) }}
+                        </div>
+                        {{ form_rest(registrationForm) }} 
+                        <button type="submit" class="btn btn-primary">Créer un compte</button>
+                    {{ form_end(registrationForm) }}
+            </li>
+            <li class="list-group-item">
+                <p>Déjà inscrit ?</p>
+                <a href="{{ path('app_login') }}" class="btn btn-primary">Se connecter</a>
+            </li>
+        </ul>
+    </div>
+</div>
 {% endblock %}

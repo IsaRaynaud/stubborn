@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Product;
 use App\Form\ProductVariantType;
+use App\Form\DataTransformer\CentimeToEuroTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -20,13 +21,14 @@ class ProductType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom du produit',
+                'label' => 'Nom du produit : ',
             ])
-            ->add('price', IntegerType::class, [
-                'label' => 'Prix',
+            ->add('price', TextType::class, [
+                'label' => 'Prix (en euros) : ',
+
             ])
             ->add('imageFile', FileType::class, [
-                'label' => 'Image du produit',
+                'label' => 'Image du produit : ',
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
@@ -43,34 +45,37 @@ class ProductType extends AbstractType
                 ],
             ])
             ->add('isFeatured', checkboxType::class, [
-                'label' => 'Mis en avant',
+                'label' => 'Mettre en avant ? ',
                 'required' => false,
             ])
             ->add('stockXS', IntegerType::class, [
                 'mapped' => false,
-                'label' => 'XS',
+                'label' => 'Stock XS : ',
                 'required' => false,
             ])
             ->add('stockS', IntegerType::class, [
                 'mapped' => false,
-                'label' => 'S',
+                'label' => 'Stock S : ',
                 'required' => false,
             ])
             ->add('stockM', IntegerType::class, [
                 'mapped' => false,
-                'label' => 'M',
+                'label' => 'Stock M : ',
                 'required' => false,
             ])
             ->add('stockL', IntegerType::class, [
                 'mapped' => false,
-                'label' => 'L',
+                'label' => 'Stock L : ',
                 'required' => false,
             ])
             ->add('stockXL', IntegerType::class, [
                 'mapped' => false,
-                'label' => 'XL',
+                'label' => 'Stock XL : ',
                 'required' => false,
             ]);
+
+        $builder->get('price')
+            ->addModelTransformer(new CentimeToEuroTransformer());
     }
 
     public function configureOptions(OptionsResolver $resolver): void

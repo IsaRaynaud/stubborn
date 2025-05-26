@@ -26,6 +26,9 @@
             "./migrations/.gitignore"
         ]
     },
+    "liip/test-fixtures-bundle": {
+        "version": "3.3.0"
+    },
     "phpunit/phpunit": {
         "version": "9.6",
         "recipe": {
@@ -296,10 +299,46 @@
             "./config/routes/web_profiler.yaml"
         ]
     },
+    "symfony/workflow": {
+        "version": "7.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.3",
+            "ref": "3b2f8ca32a07fcb00f899649053943fa3d8bbfb6"
+        },
+        "files": [
+            "./config/packages/workflow.yaml"
+        ]
+    },
+    "symfonycasts/reset-password-bundle": {
+        "version": "1.23",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "97c1627c0384534997ae1047b93be517ca16de43"
+        },
+        "files": [
+            "./config/packages/reset_password.yaml"
+        ]
+    },
     "symfonycasts/verify-email-bundle": {
         "version": "v1.17.3"
     },
     "twig/extra-bundle": {
         "version": "v3.20.0"
+    },
+    "zenstruck/foundry": {
+        "version": "2.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "56bc588a1b6d5d218319f70c64c2f0fbebe30ec7"
+        },
+        "files": [
+            "./config/packages/zenstruck_foundry.yaml"
+        ]
     }
 }

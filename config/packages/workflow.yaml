@@ -1,0 +1,14 @@
+framework:
+  workflows:
+    order:
+      type: state_machine
+      supports:
+        - App\Entity\Order
+      marking_store:
+        type: method
+      initial_marking: cart
+      places: [cart, awaiting_payment, paid, shipped]
+      transitions:
+        to_payment: { from: cart, to: awaiting_payment }
+        pay: { from: awaiting_payment, to: paid }
+        ship: { from: paid, to: shipped }

@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">Nos produits mis en avant</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+            <div class="card h-100">
+                <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text fw-bold">
+                                {{ product.formattedPrice }}
+                            </p>
+                        </div>
+                        {% if is_granted('ROLE_USER') %}
+                        <div class="col">
+                            <a href="{{ path('product_detail', {id: product.id}) }}" class="btn btn-outline-primary">VOIR</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>    
+        {% else %}
+            <p>Aucun produit mis en avant pour le moment.</p>
+        {% endfor %}
+    </div>
+    {% if is_granted('ROLE_USER') %}
+    <div class="container text-center mt-3">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <a href="{{ path('product_index')}}" class="btn btn-primary">Retrouvez tous nos produits</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

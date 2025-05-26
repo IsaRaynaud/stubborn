@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}"
+                     alt="{{ product.name }}"
+                     class="img-fluid rounded shadow-lg" />
+            </div>
+
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+                <h1>{{ product.name }}</h1>
+
+                <p class="h3 text-primary fw-semibold">
+                    {{ product.formattedPrice }}
+                </p>
+
+                <form action="{{ path('cart_add', {'id': 0}) }}" method="post" id="add-to-cart-form">
+                    <div class="mb-3">
+                        {% set sizeOrder = ['XS','S','M','L','XL'] %}
+
+                        <label for="variantSelect" class="form-label">Choisissez la taille :</label>
+                        <select id="variantSelect" name="variantId" class="form-select" required>
+                            <option value="" disabled selected>-- sélectionnez --</option>
+
+                            {% for label in sizeOrder %}
+                                {% set variant = product.variants|filter(v => v.size == label)|first %}
+                                {% if variant %}
+                                    <option value="{{ variant.id }}">{{ label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <input type="hidden" name="qty" value="1">
+
+                    <button type="submit" class="btn btn-primary" disabled id="addToCartBtn">
+                        Ajouter au panier
+                    </button>
+                </form>
+
+<script>
+    function initAddToCart() {
+        const select   = document.getElementById('variantSelect');
+        const btn      = document.getElementById('addToCartBtn');
+        const form     = document.getElementById('add-to-cart-form');
+
+        if (!select || !btn || !form) return; 
+        btn.disabled = true;
+
+        const clone = select.cloneNode(true);
+        select.parentNode.replaceChild(clone, select);
+
+            clone.addEventListener('change', () => {
+            btn.disabled = false;
+            form.action = '{{ path('cart_add', {'id': '__ID__'}) }}'.replace('__ID__', clone.value);
+        });
+    } 
+
+    document.addEventListener('DOMContentLoaded', initAddToCart);
+    document.addEventListener('turbo:load',     initAddToCart);
+</script>
+
+{% endblock %}

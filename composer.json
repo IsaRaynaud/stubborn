@@ -9,12 +9,14 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "brick/money": "^0.10.1",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.1",
+        "stripe/stripe-php": "^17.1",
         "symfony/asset": "7.2.*",
         "symfony/asset-mapper": "7.2.*",
         "symfony/console": "7.2.*",
@@ -43,10 +45,13 @@
         "symfony/ux-turbo": "^2.24",
         "symfony/validator": "7.2.*",
         "symfony/web-link": "7.2.*",
+        "symfony/workflow": "7.2.*",
         "symfony/yaml": "7.2.*",
+        "symfonycasts/reset-password-bundle": "^1.23",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "zircote/swagger-php": "5.1"
     },
     "config": {
         "allow-plugins": {
@@ -100,13 +105,15 @@
         }
     },
     "require-dev": {
+        "liip/test-fixtures-bundle": "^3.3",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "7.2.*",
         "symfony/css-selector": "7.2.*",
         "symfony/debug-bundle": "7.2.*",
-        "symfony/maker-bundle": "^1.0",
+        "symfony/maker-bundle": "^1.63",
         "symfony/phpunit-bridge": "^7.2",
         "symfony/stopwatch": "7.2.*",
-        "symfony/web-profiler-bundle": "7.2.*"
+        "symfony/web-profiler-bundle": "7.2.*",
+        "zenstruck/foundry": "2.4"
     }
 }

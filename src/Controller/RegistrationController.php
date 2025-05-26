@@ -17,7 +17,12 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(
+    name: 'Inscription',
+    description: "Création de compte et vérification d'e-mail"
+)]
 class RegistrationController extends AbstractController
 {
     public function __construct(private EmailVerifier $emailVerifier)
@@ -25,6 +30,26 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
+    #[OA\Post(
+        path: '/register',
+        operationId: 'register',
+        summary: 'Inscrire un nouvel utilisateur',
+        tags: ['Inscription'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email'),
+                    new OA\Property(property: 'plainPassword', type: 'string', format: 'password'),
+                    new OA\Property(property: 'confirmPassword', type: 'string', format: 'password')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: "Compte créé, e-mail de vérification envoyé"),
+            new OA\Response(response: 400, description: 'Données invalides ou mots de passe non concordants')
+        ]
+    )]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
     {
         $user = new User();
@@ -35,35 +60,72 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
+            $confirmPassword = $form->get('confirmPassword')->getData();
 
-            // encode the plain password
-            $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+            if ($plainPassword !== $confirmPassword) {
+                $form->get('confirmPassword')->addError(new \Symfony\Component\Form\FormError('Les mots de passe ne correspondent pas.'));
+            } else {
 
-            $user->setRoles([$form->get('roles')->getData()]);
+                //Hash du mot de passe
+                $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+                $user->setRoles(['ROLE_USER']);
 
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('contact@lewebpluschouette.fr', 'Contact'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Confirmez votre e-mail')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            // do anything else you need here, like send an email
+                //Gestion du mail de confirmation d'inscription
+                $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('contact@lewebpluschouette.fr', 'Contact'))
+                        ->to((string) $user->getEmail())
+                        ->subject('STUBBORN/Confirmez votre e-mail')
+                        ->htmlTemplate('registration/confirmation_email.html.twig')
+                );
 
-            return $security->login($user, 'form_login', 'main');
+                return $this->redirectToRoute('app_waiting_confirmation');
+            }
         }
+            return $this->render('registration/register.html.twig', [
+                'registrationForm' => $form,
+            ]);
+    }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form,
-        ]);
+    #[Route('/waiting_confirmation', name: 'app_waiting_confirmation')]
+    #[OA\Get(
+        path: '/waiting_confirmation',
+        operationId: 'waitingConfirmation',
+        summary: "Confirme que l'e-mail de vérification a été envoyé",
+        tags: ['Inscription'],
+        responses: [
+            new OA\Response(response: 200, description: 'Vue ou JSON de confirmation')
+        ]
+    )]
+    public function waitingConfirmation(): Response
+    {
+        return $this->render('registration/confirmation_page.html.twig');
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
+    #[OA\Get(
+        path: '/verify/email',
+        operationId: 'verifyEmail',
+        summary: "Valider le lien de vérification d'e-mail",
+        tags: ['Inscription'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'query',
+                required: true,
+                description: 'Identifiant du nouvel utilisateur',
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 302, description: "Redirection vers la page d'accueil après succès"),
+            new OA\Response(response: 400, description: 'Lien invalide ou expiré')
+        ]
+    )]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
         $id = $request->query->get('id');
@@ -82,13 +144,17 @@ class RegistrationController extends AbstractController
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
+
+            $this->addFlash('verify_email_error', 'Test de message en français');
 
             return $this->redirectToRoute('app_register');
         }
 
         $this->addFlash('success', 'Votre e-mail a été vérifié.');
 
+        $security->login($user, 'main');
+
         return $this->redirectToRoute('app_home');
+
     }
 }

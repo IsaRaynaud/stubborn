@@ -1,55 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Back-office administrateur{% endblock %}
+
+{% block body %}
 {% set sizes = {'XS':'XS', 'S':'S', 'M':'M', 'L':'L', 'XL':'XL'} %}
 
-<h2>Ajouter un nouveau produit</h2>
-{{ form_start(newForm) }}
-    {{ form_widget(newForm) }}
-    <button type="submit">Ajouter</button>
-{{ form_end(newForm) }}
+<div class="container mt-4">
+    <div class="card bg-add mb-5 p-3">
+        <h2 class="mb-4">Ajouter un nouveau produit</h2>
+            {{ form_start(newForm) }}
+                <div class="row align-items-center mb-3">
+                    <div class="row p-3">
+                        <div class="col">
+                            {{ form_row(newForm.imageFile) }}
+                        </div>
+                        
+                        <div class="col">
+                            {{ form_row(newForm.name) }}
+                        </div>
 
-<h2>Produits existants</h2>
-{% for product in products %}
-    <div style="border:1px solid #ccc; padding:10px; margin-bottom:15px;">
-        <h3>{{ product.name }}</h3>
+                        <div class="col">
+                            {{ form_row(newForm.price) }}
+                        </div>
 
-        {% if product.imageFilename %}
-            <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" alt="{{ product.name }}" width="150">
-        {% endif %}
+                        <div class="col">
+                            {{ form_row(newForm.isFeatured) }}
+                        </div>
+                    </div>
 
-        <p>Prix : {{ product.price }} €</p>
-        <p>Mis en avant : {{ product.isFeatured ? 'Oui' : 'Non' }}</p>
+                    <div class="row">
+                        <div class="col">
+                            {{ form_row(newForm.stockXS) }}
+                        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {% for sizeLabel, sizeCode in sizes %}
-                        <td>
-                            {% set stock = 0 %}
-                            {% for variant in product.variants %}
-                                {% if variant.size == sizeCode %}
-                                    {% set stock = variant.stock %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ stock }}
-                        </td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
+                        <div class="col">
+                            {{ form_row(newForm.stockS) }}
+                        </div>
 
-        {{ form_start(editForms[product.id], {'action': path('product_edit', {'id': product.id}), 'attr': {'enctype': 'multipart/form-data'}}) }}
-            {{ form_widget(editForms[product.id]) }}
-            <button type="submit">Modifier</button>
-        {{ form_end(editForms[product.id]) }}
+                        <div class="col">
+                            {{ form_row(newForm.stockM) }}
+                        </div>
 
-        {{ form_start(deleteForms[product.id]) }}
-            {{ form_widget(deleteForms[product.id]) }}
-            <button type="submit">Supprimer</button>
-        {{ form_end(deleteForms[product.id]) }}
+                        <div class="col">
+                            {{ form_row(newForm.stockL) }}
+                        </div>
+
+                        <div class="col">
+                            {{ form_row(newForm.stockXL) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="submit">Ajouter</button>
+                </div>
+            {{ form_end(newForm) }}
     </div>
 
-{% endfor %}
+    <div class="card mb-5 p-3">
+    <h2 class="mb-4">Produits existants</h2>
+    {% for product in products %}
+        <div class="card mb-4 p-3">
+            <div class="d-flex align-items-stretch">
+                {% if product.imageFilename %}
+                    <div class="me-3 d-flex flex-column justify-content-between">
+                        <img src="{{ asset('uploads/images/' ~ product.imageFilename) }}" alt="{{ product.name }}" width="150">
+                        <div class="mt-3">
+                    </div>
+                {% endif %}
+
+                <div class="d-flex flex-column justify-content-center flex-grow-1">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <h5 class="me-4 mb-0">{{ product.name }}</h5>
+                        <div class="me-4"><strong>Prix :</strong> {{ product.formattedPrice }}</div>
+
+                        {% for sizeLabel, sizeCode in sizes %}
+                            <div class="me-3">
+                                <strong>{{ sizeCode }} :</strong>
+                                {% set stock = 0 %}
+                                {% for variant in product.variants %}
+                                    {% if variant.size == sizeCode %}
+                                        {% set stock = variant.stock %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ stock }}
+                            </div>
+                        {% endfor %}
+
+                        <div class="ms-auto">
+                            <strong>Mis en avant :</strong>
+                            {{ product.isFeatured ? 'Oui' : 'Non' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex">
+                    <a href="{{ path('product_edit_page', {'id': product.id}) }}" class="btn btn-primary me-2">Modifier</a>
+
+                    {{ form_start(deleteForms[product.id]) }}
+                        {{ form_widget(deleteForms[product.id]) }}
+                        <button type="submit" class="btn btn-primary me-2">Supprimer</button>
+                    {{ form_end(deleteForms[product.id]) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

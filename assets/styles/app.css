@@ -1,3 +1,12 @@
 body {
-    background-color: skyblue;
+    background-color: whitesmoke;
+}
+
+.navbar .nav-link.active {
+    font-weight: 600;          /* gras */
+    text-decoration: underline;
+}
+
+.card.bg-add {
+    background-color: #CD5C5C ;
 }

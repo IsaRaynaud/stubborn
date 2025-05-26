@@ -120,4 +120,14 @@ class Product
 
         return $this;
     }
+
+    public function getPriceInEuros(): float
+    {
+        return $this->price / 100;
+    }
+
+    public function getFormattedPrice(): string
+    {
+        return number_format($this->getPriceInEuros(), 2, ',', ' ') . ' €';
+    }
 }
