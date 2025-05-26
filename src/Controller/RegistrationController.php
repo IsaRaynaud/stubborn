@@ -122,7 +122,7 @@ class RegistrationController extends AbstractController
             )
         ],
         responses: [
-            new OA\Response(response: 302, description: 'Redirection vers la page d’accueil après succès'),
+            new OA\Response(response: 302, description: "Redirection vers la page d'accueil après succès"),
             new OA\Response(response: 400, description: 'Lien invalide ou expiré')
         ]
     )]

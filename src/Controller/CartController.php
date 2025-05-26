@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Tag(
     name: 'Panier',
-    description: 'Gestion du panier de l’utilisateur'
+    description: "Gestion du panier de l'utilisateur"
 )]
 #[Route('/cart', name: 'cart_')]
 class CartController extends AbstractController
