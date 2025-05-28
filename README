@@ -1,0 +1,83 @@
+# Stubborn
+
+Plate-forme e‑commerce B2C axée sur la vente de tee‑shirts.
+
+## Présentation
+
+Stubborn est une plate‑forme e‑commerce B2C qui permet d’acheter des tee‑shirts originaux en quelques clics. L’application est développée avec Symfony 7 et met l’accent sur une expérience d’achat fluide et un back‑office minimaliste pour la gestion du catalogue.
+
+## Fonctionnalités clés
+
+- Page d’accueil
+- Inscription, connexion
+- Catalogue tee‑shirts
+- Fiche produit détaillée
+- Panier persisté (session + base de données)
+- Paiement sécurisé via Stripe
+- Page de confirmation de commande & envoi d’email
+- Interface Admin : CRUD produits & gestion des stocks
+- Notifications asynchrones (emails) via Symfony Messenger
+
+## Points techniques
+
+| Élément                 | Détails                                              |
+| ----------------------- | ---------------------------------------------------- |
+| **Langage / Framework** | PHP 8.2.12 · Symfony 7.2.6                           |
+| **Moteur de templates** | Twig 3.0 + Bootstrap 5 (Vite)                        |
+| **Base de données**     | MySQL 8 (InnoDB)                                     |
+| **Queue / Async**       | Symfony Messenger (Doctrine transport par défaut)    |
+| **Paiement**            | Stripe Checkout + Webhooks (`STRIPE_WEBHOOK_SECRET`) |
+| **Emails**              | SMTP (DSN défini dans `MAILER_DSN`)                  |
+| **Tests**               | PHPUnit                                              |
+
+## Prise en main
+
+### Pré‑requis
+
+- PHP ≥ 8.2 et Composer ≥ 2.6
+- Node ≥ 18 et npm ou Yarn (pour les assets)
+- MySQL ≥ 8
+- Extensions PHP : pdo_mysql, intl, gd, opcache
+
+### Installation
+
+git clone https://github.com/IsaRaynaud/stubborn
+cd stubborn
+composer install
+cp .env .env.local # puis renseignez STRIPE_SECRET_KEY, DATABASE_URL, MAILER_DSN… (ce fichier est ignoré par Git)
+npm install
+npm run build # ou npm run dev pour le watch
+
+### Lancement local
+
+> **Trois terminaux VS Code recommandés**
+
+Terminal 1 : serveur HTTP Symfony
+symfony server:start
+
+Terminal 2 : tunnel public
+npx localtunnel --port 8000 --subdomain stubborn
+
+Terminal 3 : écoute des webhooks Stripe
+stripe listen --forward-to localhost:8000/stripe/webhook
+
+Ensuite initialisez la base de données et les fixtures :
+symfony console doctrine:database:create --if-not-exists
+symfony console doctrine:migrations:migrate
+symfony console doctrine:fixtures:load --no-interaction
+
+Accédez à https://stubborn.loca.lt
+
+### Tests
+
+    php bin/phpunit
+
+## Déploiement
+
+Actuellement, l’application s’exécute uniquement en local ; aucune image Docker ni pipeline CI/CD n’est encore configuré.
+
+Prochaines étapes envisagées :
+
+- Conteneurisation Docker / Docker Compose pour uniformiser les environnements
+- Pipeline GitHub Actions (tests, build, migrations)
+- Hébergement PaaS
