@@ -32,10 +32,10 @@ class OrderItem
 
     public function __construct(ProductVariant $variant, int $quantity, int $unitPrice)
     {
-        $this->variant   = $variant;           // ← affecte la variant (remplit variant_id)
-        $this->quantity  = $quantity;
+        $this->variant = $variant;
+        $this->quantity = $quantity;
         $this->unitPrice = $unitPrice;
-        $this->subtotal  = $quantity * $unitPrice; // ← calcule le sous-total
+        $this->subtotal = $quantity * $unitPrice;
     }
 
     public function getId(): ?int 

@@ -21,10 +21,10 @@ use OpenApi\Attributes as OA;
 class CheckoutController extends AbstractController
 {
     public function __construct(
-        private CartManager            $cart,
+        private CartManager $cart,
         private EntityManagerInterface $em,
-        private StripeClient           $stripe,
-        private WorkflowInterface      $orderStateMachine,
+        private StripeClient $stripe,
+        private WorkflowInterface $orderStateMachine,
     ) {}
 
     #[Route('', name: 'start', methods: ['GET', 'POST'])]

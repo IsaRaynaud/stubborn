@@ -23,13 +23,13 @@ paths:
     get:
       tags:
         - 'Utilisateurs (admin)'
-      summary: 'Afficher le formulaire d’édition'
+      summary: "Afficher le formulaire d'édition"
       operationId: adminEditUserForm
       parameters:
         -
           name: id
           in: path
-          description: 'ID de l’utilisateur'
+          description: "ID de l'utilisateur"
           required: true
           schema:
             type: integer
@@ -41,13 +41,13 @@ paths:
     post:
       tags:
         - 'Utilisateurs (admin)'
-      summary: 'Mettre à jour les rôles d’un utilisateur'
+      summary: "Mettre à jour les rôles d'un utilisateur"
       operationId: adminUpdateUser
       parameters:
         -
           name: id
           in: path
-          description: 'ID de l’utilisateur'
+          description: "ID de l'utilisateur"
           required: true
           schema:
             type: integer
