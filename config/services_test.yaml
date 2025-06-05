@@ -1,0 +1,4 @@
+services:
+    Stripe\StripeClient:
+        class: App\Tests\Stub\FakeStripeClient
+        public: true

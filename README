@@ -52,18 +52,17 @@ cp .env .env.local # puis renseignez STRIPE_SECRET_KEY, DATABASE_URL, MAILER_DSN
 > **Trois terminaux VS Code recommandés**
 
 Terminal 1 : serveur HTTP Symfony
-symfony server:start
+    symfony server:start
 
 Terminal 2 : tunnel public
-npx localtunnel --port 8000 --subdomain stubborn
+    npx localtunnel --port 8000 --subdomain stubborn
 
 Terminal 3 : écoute des webhooks Stripe
-stripe listen --forward-to localhost:8000/stripe/webhook
+    stripe listen --forward-to localhost:8000/stripe/webhook
 
-Ensuite initialisez la base de données et les fixtures :
+> **Initialisez la base de données :
 symfony console doctrine:database:create --if-not-exists
 symfony console doctrine:migrations:migrate
-symfony console doctrine:fixtures:load --no-interaction
 
 Accédez à https://stubborn.loca.lt
 

@@ -44,7 +44,7 @@ class CartManager
         $this->saveRaw([]);
     }
 
-    /** Retourne un tableau d’objets CartItem */
+    // Retourne un tableau d’objets CartItem
     public function getItems(): array
     {
         $items = [];

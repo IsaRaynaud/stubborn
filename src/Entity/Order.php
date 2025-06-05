@@ -12,10 +12,10 @@ use App\Entity\User;
 #[ORM\Table(name: 'orders')]
 class Order
 {
-    public const STATUS_CART             = 'cart';
+    public const STATUS_CART = 'cart';
     public const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
-    public const STATUS_PAID             = 'paid';
-    public const STATUS_SHIPPED          = 'shipped';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_SHIPPED = 'shipped';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
