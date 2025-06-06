@@ -23,7 +23,7 @@ Stubborn est une plateforme e-commerce B2C qui permet d’acheter des tee-shirts
 | Élément                 | Détails                                              |
 | ----------------------- | ---------------------------------------------------- |
 | **Langage / Framework** | PHP 8.2.12 · Symfony 7.2.6                           |
-| **Moteur de templates** | Twig 3.0 + Bootstrap 5 (CDN)                        |
+| **Moteur de templates** | Twig 3.0 + Bootstrap 5 (CDN)                         |
 | **Base de données**     | MySQL 8 (InnoDB)                                     |
 | **Queue / Async**       | Symfony Messenger (Doctrine transport par défaut)    |
 | **Paiement**            | Stripe Checkout + Webhooks (`STRIPE_WEBHOOK_SECRET`) |
@@ -36,6 +36,7 @@ Stubborn est une plateforme e-commerce B2C qui permet d’acheter des tee-shirts
 
 - PHP ≥ 8.2 et Composer ≥ 2.6
 - Node ≥ 18 et npm ou Yarn (pour les assets)
+- Stripe CLI ≥ 1.27
 - MySQL ≥ 8
 - Extensions PHP : pdo_mysql, intl, gd, opcache
 
@@ -46,23 +47,22 @@ cd stubborn
 composer install
 cp .env .env.local # puis renseignez STRIPE_SECRET_KEY, DATABASE_URL, MAILER_DSN… (ce fichier est ignoré par Git)
 
-
 ### Lancement local
 
 > **Trois terminaux VS Code recommandés**
 
 Terminal 1 : serveur HTTP Symfony
-    symfony server:start
+symfony server:start
 
 Terminal 2 : tunnel public
-    npx localtunnel --port 8000 --subdomain stubborn
+npx localtunnel --port 8000 --subdomain stubborn
 
 Terminal 3 : écoute des webhooks Stripe
-    stripe listen --forward-to localhost:8000/stripe/webhook
+stripe listen --forward-to localhost:8000/stripe/webhook
 
-> **Initialisez la base de données :
-symfony console doctrine:database:create --if-not-exists
-symfony console doctrine:migrations:migrate
+> **Initialisez la base de données**
+> symfony console doctrine:database:create --if-not-exists
+> symfony console doctrine:migrations:migrate
 
 Accédez à https://stubborn.loca.lt
 
